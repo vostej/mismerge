@@ -11,10 +11,6 @@
 	} = $props();
 </script>
 
-<button
-	class="msm__delete-button"
-	aria-label="delete change"
-	onclick={() => ondelete(component)}
->
+<button class="msm__delete-button" aria-label="delete change" onclick={() => ondelete(component)}>
 	<CrossIcon />
 </button>

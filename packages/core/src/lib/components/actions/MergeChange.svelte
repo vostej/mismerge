@@ -11,10 +11,6 @@
 	} = $props();
 </script>
 
-<button
-	class="msm__merge-button"
-	aria-label="merge change"
-	onclick={() => onmerge(component)}
->
+<button class="msm__merge-button" aria-label="merge change" onclick={() => onmerge(component)}>
 	<ArrowIcon />
 </button>

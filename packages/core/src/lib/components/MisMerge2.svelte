@@ -10,8 +10,7 @@
 
 <script lang="ts">
 	import { joinWithDefault } from '$lib/internal/utils';
-	import { type DiffBlock, LinkedComponentsBlock } from '$lib/internal/blocks';
-	import type { BlockComponent } from '$lib/internal/editor/component';
+	import { LinkedComponentsBlock } from '$lib/internal/blocks';
 	import { onLineChange, type Connection } from '$lib/internal/editor/connection';
 	import { assembleOneWay } from '$lib/internal/diff/one-way-assembler';
 	import { OneWaySide } from '$lib/internal/editor/side';
@@ -24,7 +23,6 @@
 	import { DefaultLightColors, type EditorColors } from '$lib/internal/editor/colors';
 	import { browser } from '$lib/internal/env';
 	import type { Snippet } from 'svelte';
-	import type { Side } from '$lib/internal/editor/side';
 
 	let {
 		lhs = $bindable(),
@@ -123,8 +121,8 @@
 	}
 
 	$effect(() => {
-		wrapLines;
-		editorColors;
+		void wrapLines;
+		void editorColors;
 		update();
 	});
 
@@ -162,12 +160,7 @@
 				bind:this={lhsViewRef}
 				onheightchange={update}
 			/>
-			<Connector
-				colors={editorColors}
-				bind:this={ctrConnectorRef}
-				lhsViewElem={lhsViewElem}
-				{rhsViewElem}
-			/>
+			<Connector colors={editorColors} bind:this={ctrConnectorRef} {lhsViewElem} {rhsViewElem} />
 			<View
 				{container}
 				{highlight}

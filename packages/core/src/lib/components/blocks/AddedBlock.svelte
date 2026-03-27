@@ -3,8 +3,11 @@
 	import type { RemovedBlock } from '$lib/internal/blocks/removed';
 	import type { BlockComponent } from '$lib/internal/editor/component';
 
-	let { block, component, lines }: { block: RemovedBlock; component: BlockComponent; lines: Line[] } =
-		$props();
+	let {
+		block,
+		component,
+		lines
+	}: { block: RemovedBlock; component: BlockComponent; lines: Line[] } = $props();
 </script>
 
 <div class="msm__block {block.type}" data-component-id={component.id}>

@@ -66,7 +66,7 @@
 	}
 
 	$effect(() => {
-		height;
+		void height;
 		renderedSideComponents = renderedSideComponents;
 		onheightchange?.();
 	});

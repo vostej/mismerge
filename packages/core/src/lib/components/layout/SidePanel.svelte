@@ -48,7 +48,7 @@
 					{#if lines.length == 0}
 						<div class="msm__line-placeholder {component.type}"></div>
 					{:else}
-						{#each lines as _, lineIndex}
+						{#each lines as _line, lineIndex}
 							<div
 								style="height: {linesHeights[lineIndex]}px;"
 								class="msm__line-number {component.type}"

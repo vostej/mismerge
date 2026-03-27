@@ -9,7 +9,6 @@
 />
 
 <script lang="ts">
-	import type { BlockComponent } from '$lib/internal/editor/component';
 	import { onLineChange, type Connection } from '$lib/internal/editor/connection';
 	import { joinWithDefault } from '$lib/internal/utils';
 	import Connector from './layout/Connector.svelte';
@@ -17,7 +16,7 @@
 	import { assembleTwoWay } from '$lib/internal/diff/two-way-assembler';
 	import { type EditorColors, DefaultLightColors } from '$lib/internal/editor/colors';
 	import { TwoWaySide } from '$lib/internal/editor/side';
-	import { type DiffBlock, LinkedComponentsBlock } from '$lib/internal/blocks';
+	import { LinkedComponentsBlock } from '$lib/internal/blocks';
 	import type { LineDiffAlgorithm } from '$lib/internal/diff/line-diff';
 	import { BlocksHashTable } from '$lib/internal/storage/table';
 	import Footer from './layout/Footer.svelte';
@@ -25,7 +24,6 @@
 	import { MergeConflictBlock } from '$lib/internal/blocks/merge-conflict';
 	import { browser } from '$lib/internal/env';
 	import type { Snippet } from 'svelte';
-	import type { Side } from '$lib/internal/editor/side';
 
 	let {
 		lhs = $bindable(),
@@ -82,7 +80,7 @@
 	let resolveCount = $state(0);
 
 	const blockData = $derived.by(() => {
-		resolveCount;
+		void resolveCount;
 		const blocks = assembleTwoWay(lhs, ctr, rhs, {
 			lineDiffAlgorithm,
 			hashTable,
@@ -113,9 +111,7 @@
 	const rhsConnections = $derived(blockData.rhsConnections);
 
 	$effect(() => {
-		conflictsResolved = blocks.every(
-			(b) => !(b instanceof MergeConflictBlock) || b.isResolved
-		);
+		conflictsResolved = blocks.every((b) => !(b instanceof MergeConflictBlock) || b.isResolved);
 	});
 
 	let container = $state<HTMLDivElement | undefined>(undefined);
@@ -149,8 +145,8 @@
 	}
 
 	$effect(() => {
-		wrapLines;
-		editorColors;
+		void wrapLines;
+		void editorColors;
 		update();
 	});
 
@@ -196,7 +192,7 @@
 			<Connector
 				colors={editorColors}
 				bind:this={lhsConnectorRef}
-				lhsViewElem={lhsViewElem}
+				{lhsViewElem}
 				rhsViewElem={ctrViewElem}
 			/>
 			<View
@@ -216,7 +212,7 @@
 				colors={editorColors}
 				bind:this={rhsConnectorRef}
 				lhsViewElem={ctrViewElem}
-				rhsViewElem={rhsViewElem}
+				{rhsViewElem}
 			/>
 			<View
 				{container}

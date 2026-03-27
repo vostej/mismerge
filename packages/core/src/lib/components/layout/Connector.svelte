@@ -44,9 +44,9 @@
 	}
 
 	$effect(() => {
-		lhsViewElem;
-		rhsViewElem;
-		colors;
+		void lhsViewElem;
+		void rhsViewElem;
+		void colors;
 		redraw();
 	});
 

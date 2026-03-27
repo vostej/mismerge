@@ -1,7 +1,7 @@
 import { DefaultDarkColors, MisMerge3 } from './lib';
 import { useEffect, useState } from 'react';
-import '@mismerge/core/styles.css';
-import '@mismerge/core/dark.css';
+import '@vostej/core/styles.css';
+import '@vostej/core/dark.css';
 
 function App() {
 	const [ctr, setCtr] = useState('Hello world!');

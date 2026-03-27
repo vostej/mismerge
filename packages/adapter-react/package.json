@@ -1,5 +1,5 @@
 {
-	"name": "@mismerge/react",
+	"name": "@vostej/react",
 	"description": "React implementation of Mismerge",
 	"version": "0.0.0",
 	"type": "module",
@@ -14,12 +14,12 @@
 		"publish": "npx --no-install semantic-release -e semantic-release-monorepo"
 	},
 	"peerDependencies": {
-		"@mismerge/core": "^1.2.0",
+		"@vostej/core": "^1.2.0",
 		"react": "^19.0.0",
 		"react-dom": "^19.0.0"
 	},
 	"devDependencies": {
-		"@mismerge/core": "../core",
+		"@vostej/core": "../core",
 		"@types/react": "^19.2.14",
 		"@types/react-dom": "^19.2.3",
 		"@typescript-eslint/eslint-plugin": "^8.57.2",
@@ -34,6 +34,9 @@
 	},
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
+	"publishConfig": {
+		"registry": "https://npm.pkg.github.com"
+	},
 	"files": [
 		"dist"
 	],

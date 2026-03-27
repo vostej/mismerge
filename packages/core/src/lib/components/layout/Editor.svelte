@@ -2,18 +2,22 @@
 	import { CodeInput } from '$lib/internal/input/code-input';
 	import { onMount } from 'svelte';
 
-	/* Exports */
-
-	export let content: string;
-	export let width: number;
-	export const saveHistory = () => codeInput?.saveHistoryState();
-
-	/* Local variables */
+	let {
+		content = $bindable(),
+		width
+	}: {
+		content: string;
+		width: number;
+	} = $props();
 
 	let elem: HTMLTextAreaElement;
 	let codeInput: CodeInput;
 
 	onMount(() => (codeInput = new CodeInput(elem)));
+
+	export function saveHistory() {
+		codeInput?.saveHistoryState();
+	}
 </script>
 
 <textarea
@@ -21,9 +25,5 @@
 	style="--width: {width}px;"
 	bind:value={content}
 	bind:this={elem}
-	on:scroll={() => (elem.scrollTop = 0)}
-	on:input
-	on:keydown
-	on:keypress
-	on:keyup
-/>
+	onscroll={() => (elem.scrollTop = 0)}
+></textarea>

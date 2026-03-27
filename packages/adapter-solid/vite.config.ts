@@ -1,18 +1,12 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
-import vue from '@vitejs/plugin-vue';
+import solid from 'vite-plugin-solid';
 import dts from 'vite-plugin-dts';
 
 // https://vitejs.dev/config/
 export default defineConfig({
 	plugins: [
-		vue({
-			template: {
-				compilerOptions: {
-					isCustomElement: (tag) => tag.includes('-')
-				}
-			}
-		}),
+		solid(),
 		dts({
 			include: ['src/lib/**/*']
 		})
@@ -26,7 +20,13 @@ export default defineConfig({
 			output: {
 				entryFileNames: 'index.js'
 			},
-			external: ['vue', '@mismerge/core', '@mismerge/core/web', '@mismerge/core/colors']
+			external: [
+				'solid-js',
+				'solid-js/web',
+				'@mismerge/core',
+				'@mismerge/core/web',
+				'@mismerge/core/colors'
+			]
 		},
 		copyPublicDir: false
 	}

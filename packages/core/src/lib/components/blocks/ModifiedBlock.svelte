@@ -4,9 +4,11 @@
 	import type { LineDiff } from '$lib/internal/diff/line-diff';
 	import type { Side } from '$lib/internal/editor/side';
 
-	export let block: ModifiedBlock<Side>;
-	export let lines: LineDiff[];
-	export let component: BlockComponent;
+	let {
+		block,
+		lines,
+		component
+	}: { block: ModifiedBlock<Side>; lines: LineDiff[]; component: BlockComponent } = $props();
 </script>
 
 <div class="msm__block {block.type}" data-component-id={component.id}>

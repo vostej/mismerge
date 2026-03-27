@@ -1,43 +1,55 @@
 <script lang="ts">
 	import type { BlockComponent } from '$lib/internal/editor/component';
 	import type { Side } from '$lib/internal/editor/side';
-	import { createEventDispatcher } from 'svelte';
 	import SidePanel from './SidePanel.svelte';
 	import Editor from './Editor.svelte';
 	import HighlightOverlay from './HighlightOverlay.svelte';
 	import { deleteComponent, mergeComponent } from '$lib/internal/editor/actions';
 
-	/* Exports */
+	let {
+		elem = $bindable(),
+		container,
+		components,
+		editable = false,
+		content = $bindable(),
+		side,
+		disableMerging,
+		lineNumbersSide = 'left',
+		highlight,
+		class: clazz = '',
+		onheightchange,
+		onmerge,
+		ondelete,
+		onresolve
+	}: {
+		elem?: HTMLDivElement;
+		container: HTMLDivElement;
+		components: BlockComponent[];
+		editable?: boolean;
+		content: string;
+		side: Side;
+		disableMerging: boolean;
+		lineNumbersSide?: 'left' | 'right';
+		highlight?: (text: string) => string | Promise<string>;
+		class?: string;
+		onheightchange?: () => void;
+		onmerge?: (component: BlockComponent) => void;
+		ondelete?: (component: BlockComponent) => void;
+		onresolve?: (component: BlockComponent) => void;
+	} = $props();
 
-	export let elem: HTMLDivElement;
-	export let container: HTMLDivElement;
-	export let components: BlockComponent[];
-	export let editable = false;
-	export let content: string;
-	export let side: Side;
-	export let disableMerging: boolean;
-	export let lineNumbersSide: 'left' | 'right' = 'left';
-	export let highlight: ((text: string) => string | Promise<string>) | undefined;
-	export { clazz as class };
-
-	/* Local variables */
-
-	let clazz = '';
 	let contentElem: HTMLDivElement;
-	let sideComponents: BlockComponent[] = [];
-	let renderedSideComponents: {
-		block: HTMLDivElement;
-		lines: HTMLDivElement[];
-		linesHeights: number[];
-	}[] = [];
-	let saveHistory: () => void;
-	let height = 0;
-	let width = 0;
+	let editorRef = $state<Editor | undefined>(undefined);
+	let height = $state(0);
+	let width = $state(0);
 
-	/* Local functions */
+	let renderedSideComponents = $state<
+		{ block: HTMLDivElement; lines: HTMLDivElement[]; linesHeights: number[] }[]
+	>([]);
 
-	export const update = () => {
-		// Find all the blocks elements after they have been mounted in the DOM
+	const sideComponents = $derived(components.filter((c) => c.side.eq(side)));
+
+	export function update() {
 		if (!contentElem) return;
 		const elements = Array.from(contentElem.querySelectorAll('.msm__block'));
 		if (elements.length != sideComponents.length) return;
@@ -51,36 +63,29 @@
 				linesHeights: heights
 			};
 		});
-	};
-
-	const redrawLines = () => (renderedSideComponents = renderedSideComponents);
-
-	// Actions
-
-	const onMerge = (e: CustomEvent<{ component: BlockComponent }>) => {
-		mergeComponent({ source: e.detail.component, side, components, container });
-		if (saveHistory) saveHistory();
-	};
-
-	const onDelete = (e: CustomEvent<{ component: BlockComponent }>) => {
-		deleteComponent({ component: e.detail.component, container });
-		if (saveHistory) saveHistory();
-	};
-
-	/* Reactive statements */
-
-	$: sideComponents = components.filter((component) => component.side.eq(side));
-	$: {
-		height;
-		redrawLines();
-		dispatch('height-change', {});
 	}
 
-	/* Events */
+	$effect(() => {
+		height;
+		renderedSideComponents = renderedSideComponents;
+		onheightchange?.();
+	});
 
-	const dispatch = createEventDispatcher<{
-		'height-change': Record<string, never>;
-	}>();
+	function handleMerge(component: BlockComponent) {
+		mergeComponent({ source: component, side, components, container });
+		editorRef?.saveHistory();
+		onmerge?.(component);
+	}
+
+	function handleDelete(component: BlockComponent) {
+		deleteComponent({ component, container });
+		editorRef?.saveHistory();
+		ondelete?.(component);
+	}
+
+	function handleResolve(component: BlockComponent) {
+		onresolve?.(component);
+	}
 </script>
 
 <div
@@ -93,11 +98,9 @@
 			{disableMerging}
 			{renderedSideComponents}
 			components={sideComponents}
-			on:merge={onMerge}
-			on:delete={onDelete}
-			on:merge
-			on:resolve
-			on:delete
+			onmerge={handleMerge}
+			ondelete={handleDelete}
+			onresolve={handleResolve}
 		/>
 	{/if}
 	<div class="msm__view-content">
@@ -108,24 +111,17 @@
 			bind:clientHeight={height}
 		>
 			{#each sideComponents as blockComponent}
-				<svelte:component
-					this={blockComponent.component}
-					{...{ ...blockComponent.props, component: blockComponent }}
-				/>
-				<!-- 
-					☝️ The weird spread is needed due to a Svelte bug affecting the use of 
-					`<svelte:component>` with spread props and normal ones in v4.
-					See here for more details: https://github.com/sveltejs/svelte/issues/9177	
-				-->
+				{@const BlockComp = blockComponent.component}
+				<BlockComp {...blockComponent.props} component={blockComponent} />
 			{/each}
 		</div>
 
 		{#if highlight}
-			<HighlightOverlay bind:content bind:width {highlight} />
+			<HighlightOverlay {content} {width} {highlight} />
 		{/if}
 
 		{#if editable}
-			<Editor bind:content bind:width bind:saveHistory on:input on:keydown on:keypress on:keyup />
+			<Editor bind:content {width} bind:this={editorRef} />
 		{/if}
 	</div>
 	{#if lineNumbersSide == 'right'}
@@ -134,11 +130,9 @@
 			{disableMerging}
 			{renderedSideComponents}
 			components={sideComponents}
-			on:merge={onMerge}
-			on:delete={onDelete}
-			on:resolve
-			on:merge
-			on:delete
+			onmerge={handleMerge}
+			ondelete={handleDelete}
+			onresolve={handleResolve}
 		/>
 	{/if}
 </div>

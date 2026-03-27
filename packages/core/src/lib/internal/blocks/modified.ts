@@ -41,7 +41,7 @@ export class ModifiedBlock<SideType extends Side> extends LinkedComponentsBlock<
 		);
 	}
 
-	public connections(components: BlockComponent<Record<string, unknown>>[]): Connection[] {
+	public connections(components: BlockComponent[]): Connection[] {
 		const filteredComponents = components.filter(
 			(component) => component.type !== UnchangedBlock.prototype.type
 		);

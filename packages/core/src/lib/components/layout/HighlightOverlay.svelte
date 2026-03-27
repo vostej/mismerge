@@ -1,23 +1,21 @@
 <script lang="ts">
-	/* Exports */
+	let {
+		content,
+		highlight,
+		width
+	}: {
+		content: string;
+		highlight: (text: string) => string | Promise<string>;
+		width: number;
+	} = $props();
 
-	export let content: string;
-	export let highlight: (text: string) => string | Promise<string>;
-	export let width: number;
+	let highlighted = $state('');
 
-	/* Local variables */
-
-	let highlighted: string;
-
-	/* Local functions */
-
-	const highlightContent = async (text: string) => {
-		highlighted = await highlight(text);
-	};
-
-	/* Reactive statements */
-
-	$: highlightContent(content);
+	$effect(() => {
+		(async () => {
+			highlighted = await highlight(content);
+		})();
+	});
 </script>
 
 {#if highlighted}

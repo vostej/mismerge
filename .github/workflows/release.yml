@@ -13,10 +13,10 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
           cache: 'npm'
 
       - name: Install dependendencies
@@ -45,12 +45,15 @@ jobs:
       contents: write
       packages: write
       attestations: write
+      workflows: write
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
         with:
-          node-version: 22
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
           registry-url: 'https://npm.pkg.github.com'
           scope: '@vostej'
           cache: 'npm'
@@ -72,7 +75,7 @@ jobs:
           cd packages/adapter-solid && npm pack --pack-destination ../../packed && cd ../..
 
       - name: Attest build provenance
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@v4
         with:
           subject-path: './packed/*.tgz'
 

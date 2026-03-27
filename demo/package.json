@@ -8,7 +8,7 @@
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-		"gh-pages": "npx gh-pages -d build -t true"
+		"gh-pages": "npx gh-pages -d build -t"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-static": "^3.0.10",

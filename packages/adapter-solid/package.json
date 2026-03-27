@@ -3,7 +3,7 @@
 	"description": "Solid.js implementation of Mismerge",
 	"version": "0.0.0",
 	"type": "module",
-	"author": "BearToCode",
+	"author": "vostej",
 	"license": "MIT",
 	"scripts": {
 		"dev": "vite",

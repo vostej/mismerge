@@ -5,9 +5,9 @@
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/BearToCode/mismerge.git"
+		"url": "https://github.com/vostej/mismerge.git"
 	},
-	"author": "BearToCode",
+	"author": "vostej",
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build && npm run package",

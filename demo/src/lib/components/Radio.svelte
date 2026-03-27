@@ -20,7 +20,7 @@
 <div class="radio {open ? 'open' : ''}">
 	<button bind:this={btn}>
 		<slot />
-		<iconify-icon class="arrow-down" icon="iconamoon:arrow-down-2-bold" />
+		<iconify-icon class="arrow-down" icon="iconamoon:arrow-down-2-bold"></iconify-icon>
 	</button>
 
 	<div bind:this={dropdown} class="dropdown">

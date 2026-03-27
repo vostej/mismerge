@@ -51,17 +51,19 @@
 <div class="toolbar">
 	<button
 		class="reset"
+		aria-label="Clear all"
 		on:click={() => {
 			lhs.set('');
 			rhs.set('');
 			ctr.set('');
 		}}
 	>
-		<iconify-icon icon="pajamas:clear-all" />
+		<iconify-icon icon="pajamas:clear-all"></iconify-icon>
 	</button>
 
 	<button
 		class="change-theme"
+		aria-label="Toggle theme"
 		on:click={() => {
 			if ($theme == 'light') {
 				theme.set('dark');
@@ -70,11 +72,11 @@
 			}
 		}}
 	>
-		<iconify-icon icon="mingcute:moon-fill" />
+		<iconify-icon icon="mingcute:moon-fill"></iconify-icon>
 	</button>
 
 	<Radio bind:value={$component}>
-		<iconify-icon icon="bxs:component" />
+		<iconify-icon icon="bxs:component"></iconify-icon>
 		<span>Component</span>
 
 		<ul slot="dropdown" let:RadioOption class="dropdown-list">
@@ -84,13 +86,13 @@
 	</Radio>
 
 	<Radio bind:value={$language}>
-		<iconify-icon icon="tabler:code" />
+		<iconify-icon icon="tabler:code"></iconify-icon>
 		<span>Language</span>
 
 		<ul slot="dropdown" let:RadioOption class="dropdown-list radio-languages">
 			{#each languages as lang}
 				<RadioOption bind:selectedValue={$language} value={lang.code}>
-					<iconify-icon icon={lang.icon} />
+					<iconify-icon icon={lang.icon}></iconify-icon>
 					<span>{lang.name}</span>
 				</RadioOption>
 			{/each}
@@ -98,27 +100,27 @@
 	</Radio>
 
 	<CheckBox bind:checked={$wrapLines}>
-		<iconify-icon icon="uis:wrap-text" />
+		<iconify-icon icon="uis:wrap-text"></iconify-icon>
 		<span>Wrap lines</span>
 	</CheckBox>
 
 	<CheckBox bind:checked={$disableMerging}>
-		<iconify-icon icon="jam:merge" />
+		<iconify-icon icon="jam:merge"></iconify-icon>
 		<span>Disable merging</span>
 	</CheckBox>
 
 	<CheckBox bind:checked={$disableFooter}>
-		<iconify-icon icon="pixelarticons:layout-footer" />
+		<iconify-icon icon="pixelarticons:layout-footer"></iconify-icon>
 		<span>Disable footer</span>
 	</CheckBox>
 
 	<CheckBox bind:checked={$ignoreWhitespace}>
-		<iconify-icon icon="mingcute:space-fill" />
+		<iconify-icon icon="mingcute:space-fill"></iconify-icon>
 		<span>Ignore whitespace</span>
 	</CheckBox>
 
 	<CheckBox bind:checked={$ignoreCase}>
-		<iconify-icon icon="fluent:text-case-title-16-filled" />
+		<iconify-icon icon="fluent:text-case-title-16-filled"></iconify-icon>
 		<span>Ignore case</span>
 	</CheckBox>
 </div>

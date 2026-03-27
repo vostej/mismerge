@@ -2,7 +2,7 @@
 </script>
 
 <div class="footer">
-	<a href="https://www.npmjs.com/package/@mismerge/core" aria-label="npm">
+	<a href="https://github.com/vostej/mismerge/pkgs/npm/core" aria-label="npm">
 		<iconify-icon icon="gg:npm"></iconify-icon>
 	</a>
 

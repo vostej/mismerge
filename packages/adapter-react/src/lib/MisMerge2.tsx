@@ -1,4 +1,4 @@
-import type { EditorColors, Highlighter, LineDiffAlgorithm } from '@mismerge/core';
+import type { EditorColors, Highlighter, LineDiffAlgorithm } from '@vostej/core';
 import { useEffect, useRef } from 'react';
 
 export function MisMerge2({
@@ -42,7 +42,7 @@ export function MisMerge2({
 
 	useEffect(() => {
 		// @ts-expect-error No definitions provided for web components
-		import('@mismerge/core/web');
+		import('@vostej/core/web');
 	}, []);
 
 	useEffect(() => {

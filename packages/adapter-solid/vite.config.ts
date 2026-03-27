@@ -23,9 +23,9 @@ export default defineConfig({
 			external: [
 				'solid-js',
 				'solid-js/web',
-				'@mismerge/core',
-				'@mismerge/core/web',
-				'@mismerge/core/colors'
+				'@vostej/core',
+				'@vostej/core/web',
+				'@vostej/core/colors'
 			]
 		},
 		copyPublicDir: false

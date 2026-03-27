@@ -1,5 +1,5 @@
 {
-	"name": "@mismerge/solid",
+	"name": "@vostej/solid",
 	"description": "Solid.js implementation of Mismerge",
 	"version": "0.0.0",
 	"type": "module",
@@ -13,11 +13,11 @@
 		"publish": "npx --no-install semantic-release -e semantic-release-monorepo"
 	},
 	"peerDependencies": {
-		"@mismerge/core": "^1.2.0",
+		"@vostej/core": "^1.2.0",
 		"solid-js": "^1.0.0"
 	},
 	"devDependencies": {
-		"@mismerge/core": "../core",
+		"@vostej/core": "../core",
 		"@types/node": "^25.5.0",
 		"publint": "^0.3.18",
 		"solid-js": "^1.9.12",
@@ -28,6 +28,9 @@
 	},
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
+	"publishConfig": {
+		"registry": "https://npm.pkg.github.com"
+	},
 	"files": [
 		"dist"
 	],

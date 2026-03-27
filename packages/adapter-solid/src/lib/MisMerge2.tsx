@@ -1,4 +1,4 @@
-import type { EditorColors, Highlighter, LineDiffAlgorithm } from '@mismerge/core';
+import type { EditorColors, Highlighter, LineDiffAlgorithm } from '@vostej/core';
 import { createEffect, onMount } from 'solid-js';
 import type { JSX } from 'solid-js';
 
@@ -25,7 +25,7 @@ export function MisMerge2(props: {
 
 	onMount(() => {
 		// @ts-expect-error No definitions provided for web components
-		import('@mismerge/core/web');
+		import('@vostej/core/web');
 	});
 
 	createEffect(() => {

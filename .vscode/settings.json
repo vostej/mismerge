@@ -1,0 +1,31 @@
+{
+	"cSpell.words": [
+		"codicon",
+		"cyrb",
+		"devicon",
+		"fileoverview",
+		"fontisto",
+		"heroicons",
+		"iconify",
+		"limerge",
+		"majesticons",
+		"mismerge",
+		"nonicons",
+		"preinstall",
+		"publint",
+		"shiki",
+		"tabler",
+		"twotone"
+	],
+	"[svelte]": {
+		"editor.defaultFormatter": "svelte.svelte-vscode"
+	},
+	"[vue]": {
+		"editor.formatOnSave": true,
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[javascriptreact]": {
+		"editor.formatOnSave": true,
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	}
+}

@@ -25,8 +25,7 @@ export function MisMerge3(props: {
 	ignoreCase?: boolean;
 	onConflictsResolvedChange?: (conflictsResolved: boolean) => void;
 }): JSX.Element {
-	// eslint-disable-next-line prefer-const
-	let ref: HTMLElement & Record<string, unknown>;
+	let ref!: HTMLElement & Record<string, unknown>;
 
 	onMount(() => {
 		// @ts-expect-error No definitions provided for web components

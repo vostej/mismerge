@@ -21,8 +21,7 @@ export function MisMerge2(props: {
 	ignoreWhitespace?: boolean;
 	ignoreCase?: boolean;
 }): JSX.Element {
-	// eslint-disable-next-line prefer-const
-	let ref: HTMLElement & Record<string, unknown>;
+	let ref!: HTMLElement & Record<string, unknown>;
 
 	onMount(() => {
 		// @ts-expect-error No definitions provided for web components

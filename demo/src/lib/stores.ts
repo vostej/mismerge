@@ -77,8 +77,14 @@ export const disableMerging = writableWithLocalStorage<boolean>(
 	'disableMerging',
 	defaultDisableMerging
 );
-export const disableFooter = writableWithLocalStorage<boolean>('disableFooter', defaultDisableFooter);
-export const disableHeader = writableWithLocalStorage<boolean>('disableHeader', defaultDisableHeader);
+export const disableFooter = writableWithLocalStorage<boolean>(
+	'disableFooter',
+	defaultDisableFooter
+);
+export const disableHeader = writableWithLocalStorage<boolean>(
+	'disableHeader',
+	defaultDisableHeader
+);
 export const disableSyntaxHighlighting = writableWithLocalStorage<boolean>(
 	'disableSyntaxHighlighting',
 	defaultDisableSyntaxHighlighting

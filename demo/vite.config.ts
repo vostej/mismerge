@@ -3,9 +3,9 @@ import { fileURLToPath } from 'node:url';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 
-const resolveFromDemo = (relativePath: string) => fileURLToPath(new URL(relativePath, import.meta.url));
+const resolveFromDemo = (relativePath: string) =>
+	fileURLToPath(new URL(relativePath, import.meta.url));
 const coreLibRoot = resolveFromDemo('../packages/core/src/lib');
-const coreLibImportRoot = `/@fs${coreLibRoot}`;
 
 function resolveCoreLibImport(source: string) {
 	const importPath = source.slice('$lib/'.length);

@@ -4,7 +4,7 @@
 	import type { BlockComponent } from '$lib/internal/editor/component';
 
 	let {
-		block,
+		block: _block,
 		component,
 		lines
 	}: { block: RemovedBlock; component: BlockComponent; lines: Line[] } = $props();

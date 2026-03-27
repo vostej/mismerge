@@ -55,8 +55,9 @@ export class ModifiedBlock<SideType extends Side> extends LinkedComponentsBlock<
 
 	private getLines(side: Side): string[] {
 		return (
-			[...this.modifiedSidesData, ...(this.unchangedSideData ? [this.unchangedSideData] : [])]
-				.find((sideData) => sideData.side.eq(side))?.lines ?? []
+			[...this.modifiedSidesData, ...(this.unchangedSideData ? [this.unchangedSideData] : [])].find(
+				(sideData) => sideData.side.eq(side)
+			)?.lines ?? []
 		).map((line) =>
 			('parts' in line ? line.parts.map((part) => part.content).join('') : line.content)
 				.replaceAll('\r', '')
@@ -85,49 +86,52 @@ export class ModifiedBlock<SideType extends Side> extends LinkedComponentsBlock<
 			.concat(this.unchangedSideData ? [this.unchangedSideData.side] : []);
 
 		return candidateSides.some(
-			(side) => side instanceof TwoWaySide && !side.eq(TwoWaySide.ctr) && this.hasMergedIntoCenter(side)
+			(side) =>
+				side instanceof TwoWaySide && !side.eq(TwoWaySide.ctr) && this.hasMergedIntoCenter(side)
 		);
 	}
 
 	private toPlainLines(lines: LineDiff[]): Line[] {
 		return lines.map((line) => ({
-			content: line.parts.map((part) => part.content).join('').replaceAll('\r', '').replaceAll('\n', '')
+			content: line.parts
+				.map((part) => part.content)
+				.join('')
+				.replaceAll('\r', '')
+				.replaceAll('\n', '')
 		}));
 	}
 
 	public render() {
 		// Return two modified components for the sides where the line was modified
 		// and one unchanged component for the side where the line wasn't.
-		const modifiedComponents = this.modifiedSidesData.map(
-			({ side, lines }) => {
-				const acceptedFromSource = this.hasMergedIntoCenter(side);
-				const acceptedInCenter =
-					side instanceof TwoWaySide && side.eq(TwoWaySide.ctr) && this.centerIncludesMergedChange();
-				const rendersAsAdded = acceptedFromSource || acceptedInCenter;
+		const modifiedComponents = this.modifiedSidesData.map(({ side, lines }) => {
+			const acceptedFromSource = this.hasMergedIntoCenter(side);
+			const acceptedInCenter =
+				side instanceof TwoWaySide && side.eq(TwoWaySide.ctr) && this.centerIncludesMergedChange();
+			const rendersAsAdded = acceptedFromSource || acceptedInCenter;
 
-				return new BlockComponent({
-					component: rendersAsAdded ? AddedBlockComponent : ModifiedBlockComponent,
-					blockId: this.id,
-					props: {
-						...(rendersAsAdded
-							? { block: this, lines: this.toPlainLines(lines) }
-							: { block: this, lines }),
-						acceptedInCenter
-					},
-					linesCount: this.linesCount(side),
-					side: side,
-					type: this.type,
-					visualType: rendersAsAdded ? AddedBlock.type : this.type,
-					sideAction:
-						side instanceof TwoWaySide && side.eq(TwoWaySide.ctr)
-							? undefined
-							: {
-									component: acceptedFromSource ? DeleteChange : MergeChange,
-									props: {}
-								}
-				});
-			}
-		);
+			return new BlockComponent({
+				component: rendersAsAdded ? AddedBlockComponent : ModifiedBlockComponent,
+				blockId: this.id,
+				props: {
+					...(rendersAsAdded
+						? { block: this, lines: this.toPlainLines(lines) }
+						: { block: this, lines }),
+					acceptedInCenter
+				},
+				linesCount: this.linesCount(side),
+				side: side,
+				type: this.type,
+				visualType: rendersAsAdded ? AddedBlock.type : this.type,
+				sideAction:
+					side instanceof TwoWaySide && side.eq(TwoWaySide.ctr)
+						? undefined
+						: {
+								component: acceptedFromSource ? DeleteChange : MergeChange,
+								props: {}
+							}
+			});
+		});
 		if (!this.unchangedSideData) return modifiedComponents;
 		const acceptedFromUnchangedSource = this.hasMergedIntoCenter(this.unchangedSideData.side);
 		return Array.prototype.concat(modifiedComponents, [
@@ -141,9 +145,9 @@ export class ModifiedBlock<SideType extends Side> extends LinkedComponentsBlock<
 				visualType: acceptedFromUnchangedSource ? AddedBlock.type : UnchangedBlock.type,
 				sideAction: acceptedFromUnchangedSource
 					? {
-						component: DeleteChange,
-						props: {}
-					}
+							component: DeleteChange,
+							props: {}
+						}
 					: undefined
 			})
 		]);

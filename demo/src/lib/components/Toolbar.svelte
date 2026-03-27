@@ -4,7 +4,6 @@
 	import {
 		clearDemoLocalStorage,
 		component,
-		ctrPlaceholder,
 		disableFooter,
 		disableHeader,
 		disableMerging,
@@ -13,9 +12,7 @@
 		ignoreCase,
 		ignoreWhitespace,
 		language,
-		lhsPlaceholder,
 		resetDemoState,
-		rhsPlaceholder,
 		syncHorizontalScroll,
 		theme,
 		wrapLines

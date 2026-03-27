@@ -4,7 +4,7 @@
 	import type { BlockComponent } from '$lib/internal/editor/component';
 
 	let {
-		block,
+		block: _block,
 		lines,
 		component
 	}: { block: MergeConflictBlock; lines: Line[]; component: BlockComponent } = $props();

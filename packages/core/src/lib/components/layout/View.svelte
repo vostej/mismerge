@@ -5,7 +5,11 @@
 	import SidePanel from './SidePanel.svelte';
 	import Editor from './Editor.svelte';
 	import HighlightOverlay from './HighlightOverlay.svelte';
-	import { deleteComponent, mergeComponent, removeMergedComponent } from '$lib/internal/editor/actions';
+	import {
+		deleteComponent,
+		mergeComponent,
+		removeMergedComponent
+	} from '$lib/internal/editor/actions';
 
 	let {
 		elem = $bindable(),

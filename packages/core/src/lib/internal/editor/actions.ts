@@ -67,7 +67,9 @@ export function removeMergedComponent(data: {
 		return;
 	}
 
-	mergeData.textarea.value = Array.prototype.concat(prevLines, remainingLines, nextLines).join('\n');
+	mergeData.textarea.value = Array.prototype
+		.concat(prevLines, remainingLines, nextLines)
+		.join('\n');
 
 	const event = new Event('input', { bubbles: true });
 	mergeData.textarea.dispatchEvent(event);
@@ -220,7 +222,10 @@ function getMergeStrategy(
 		return 'replace';
 	}
 
-	if (!(source.side instanceof TwoWaySide) || !(correspondingComponent.side instanceof TwoWaySide)) {
+	if (
+		!(source.side instanceof TwoWaySide) ||
+		!(correspondingComponent.side instanceof TwoWaySide)
+	) {
 		return 'replace';
 	}
 

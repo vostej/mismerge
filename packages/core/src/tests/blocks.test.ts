@@ -195,8 +195,12 @@ test('modified blocks show delete action when a side is already merged into cent
 	});
 
 	const mergedComponents = mergedBlock.render();
-	const mergedLeftComponent = mergedComponents.find((component) => component.side.eq(TwoWaySide.lhs));
-	const mergedCenterComponent = mergedComponents.find((component) => component.side.eq(TwoWaySide.ctr));
+	const mergedLeftComponent = mergedComponents.find((component) =>
+		component.side.eq(TwoWaySide.lhs)
+	);
+	const mergedCenterComponent = mergedComponents.find((component) =>
+		component.side.eq(TwoWaySide.ctr)
+	);
 
 	expect(mergedLeftComponent?.sideAction?.component).toBe(DeleteChange);
 	expect(mergedLeftComponent?.type).toBe(ModifiedBlock.type);
@@ -258,4 +262,3 @@ test('accepted unchanged source rows render as added blocks', () => {
 	expect(leftComponent?.type).toBe(UnchangedBlock.type);
 	expect(leftComponent?.visualType).toBe(AddedBlock.type);
 });
-

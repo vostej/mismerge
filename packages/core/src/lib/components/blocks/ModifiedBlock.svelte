@@ -5,7 +5,7 @@
 	import type { Side } from '$lib/internal/editor/side';
 
 	let {
-		block,
+		block: _block,
 		lines,
 		acceptedInCenter = false,
 		component
@@ -17,7 +17,10 @@
 	} = $props();
 </script>
 
-<div class="msm__block {component.visualType} {acceptedInCenter ? 'accepted' : ''}" data-component-id={component.id}>
+<div
+	class="msm__block {component.visualType} {acceptedInCenter ? 'accepted' : ''}"
+	data-component-id={component.id}
+>
 	{#each lines as line}
 		<div class="msm__line">
 			<div class="msm__content">

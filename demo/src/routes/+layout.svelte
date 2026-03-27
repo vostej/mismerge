@@ -1,4 +1,4 @@
-<script class="ts">
+<script lang="ts">
 	import { theme } from '$lib/stores';
 	import { onMount } from 'svelte';
 

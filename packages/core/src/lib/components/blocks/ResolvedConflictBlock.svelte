@@ -3,9 +3,11 @@
 	import type { MergeConflictBlock } from '$lib/internal/blocks/merge-conflict';
 	import type { BlockComponent } from '$lib/internal/editor/component';
 
-	export let block: MergeConflictBlock;
-	export let lines: Line[];
-	export let component: BlockComponent;
+	let {
+		block,
+		lines,
+		component
+	}: { block: MergeConflictBlock; lines: Line[]; component: BlockComponent } = $props();
 </script>
 
 <div class="msm__block {block.resolvedType}" data-component-id={component.id}>

@@ -3,9 +3,11 @@
 	import type { RemovedBlock } from '$lib/internal/blocks/removed';
 	import type { BlockComponent } from '$lib/internal/editor/component';
 
-	export let block: RemovedBlock;
-	export let component: BlockComponent;
-	export let lines: Line[];
+	let {
+		block,
+		component,
+		lines
+	}: { block: RemovedBlock; component: BlockComponent; lines: Line[] } = $props();
 </script>
 
 <div class="msm__block {block.type}" data-component-id={component.id}>

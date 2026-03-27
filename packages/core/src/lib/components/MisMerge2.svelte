@@ -10,11 +10,10 @@
 
 <script lang="ts">
 	import { joinWithDefault } from '$lib/internal/utils';
-	import { type DiffBlock, LinkedComponentsBlock } from '$lib/internal/blocks';
-	import type { BlockComponent } from '$lib/internal/editor/component';
+	import { LinkedComponentsBlock } from '$lib/internal/blocks';
 	import { onLineChange, type Connection } from '$lib/internal/editor/connection';
 	import { assembleOneWay } from '$lib/internal/diff/one-way-assembler';
-	import { OneWaySide, Side } from '$lib/internal/editor/side';
+	import { OneWaySide } from '$lib/internal/editor/side';
 	import View from './layout/View.svelte';
 	import Connector from './layout/Connector.svelte';
 	import type { LineDiffAlgorithm } from '$lib/internal/diff/line-diff';
@@ -23,100 +22,64 @@
 	import Footer from './layout/Footer.svelte';
 	import { DefaultLightColors, type EditorColors } from '$lib/internal/editor/colors';
 	import { browser } from '$lib/internal/env';
+	import type { Snippet } from 'svelte';
 
-	/* Exports */
+	let {
+		lhs = $bindable(),
+		rhs = $bindable(),
+		colors = {} as Partial<EditorColors>,
+		lhsEditable = true,
+		rhsEditable = true,
+		lineDiffAlgorithm = 'words_with_space' as LineDiffAlgorithm,
+		class: clazz = '',
+		disableMerging = false,
+		wrapLines = false,
+		disableFooter = false,
+		disableWordsCounter = false,
+		disableCharsCounter = false,
+		disableBlocksCounters = false,
+		highlight = undefined as ((text: string) => string | Promise<string>) | undefined,
+		ignoreWhitespace = false,
+		ignoreCase = false,
+		header = undefined,
+		main = undefined,
+		footer = undefined
+	}: {
+		lhs: string;
+		rhs: string;
+		colors?: Partial<EditorColors>;
+		lhsEditable?: boolean;
+		rhsEditable?: boolean;
+		lineDiffAlgorithm?: LineDiffAlgorithm;
+		class?: string;
+		disableMerging?: boolean;
+		wrapLines?: boolean;
+		disableFooter?: boolean;
+		disableWordsCounter?: boolean;
+		disableCharsCounter?: boolean;
+		disableBlocksCounters?: boolean;
+		highlight?: (text: string) => string | Promise<string>;
+		ignoreWhitespace?: boolean;
+		ignoreCase?: boolean;
+		header?: Snippet;
+		main?: Snippet;
+		footer?: Snippet;
+	} = $props();
 
-	/**
-	 * Left hand side content.
-	 */
-	export let lhs: string;
-	/**
-	 * Right hand side content.
-	 */
-	export let rhs: string;
-	/**
-	 * Custom colors to use for the editor.
-	 */
-	export { userColors as colors };
-	/**
-	 * Whether the left hand side content is editable.
-	 */
-	export let lhsEditable = true;
-	/**
-	 * Whether the right hand side content is editable.
-	 */
-	export let rhsEditable = true;
-	/**
-	 * Line diff algorithm.
-	 * @default "words_with_space"
-	 */
-	export let lineDiffAlgorithm: LineDiffAlgorithm = 'words_with_space';
-	/**
-	 * Editor class.
-	 */
-	export { clazz as class };
-	/**
-	 * Disable merging actions.
-	 */
-	export let disableMerging = false;
-	/**
-	 * Enables lines wrapping.
-	 */
-	export let wrapLines = false;
-	/**
-	 * Disable footer.
-	 */
-	export let disableFooter = false;
-	/**
-	 * Disable the footer words counter.
-	 */
-	export let disableWordsCounter = false;
-	/**
-	 * Disable the footer chars counter.
-	 */
-	export let disableCharsCounter = false;
-	/**
-	 * Disable the footer blocks counters.
-	 */
-	export let disableBlocksCounters = false;
-	/**
-	 * Syntax highlighting.
-	 */
-	export let highlight: ((text: string) => string | Promise<string>) | undefined = undefined;
-	/**
-	 * `true` to ignore leading and trailing whitespace.
-	 * @default false
-	 */
-	export let ignoreWhitespace = false;
-	/**
-	 * `true` to ignore casing difference.
-	 * @default false
-	 */
-	export let ignoreCase = false;
-
-	/* Local variables */
-
-	let clazz = '';
-	let userColors: Partial<EditorColors> = {};
-	let editorColors: EditorColors;
-	let blocks: DiffBlock<Side>[] = [];
-	let connections: Connection[] = [];
-	let components: BlockComponent[] = [];
-
-	let container: HTMLDivElement;
-	let lhsViewElem: HTMLDivElement;
-	let rhsViewElem: HTMLDivElement;
-	let drawCtrConnections: (container: HTMLDivElement, connections: Connection[]) => void;
-	let updateLhsView: () => void;
-	let updateRhsView: () => void;
+	const editorColors = $derived(joinWithDefault(colors, DefaultLightColors));
 
 	const hashTable = new BlocksHashTable();
 
-	/* Local functions */
+	const blockData = $derived.by(() => {
+		const blocks = assembleOneWay(lhs, rhs, {
+			lineDiffAlgorithm,
+			hashTable,
+			diffOpts: { ignoreCase, ignoreWhitespace }
+		});
 
-	function renderComponents(blocks: DiffBlock<Side>[]) {
-		connections = [];
-		components = blocks
+		const connections: Connection[] = [];
+
+		const components = blocks
 			.map((block) => {
 				const comps = block.render();
 				if (block instanceof LinkedComponentsBlock)
@@ -124,46 +87,46 @@
 				return comps;
 			})
 			.flat();
+
+		return { blocks, components, connections };
+	});
+
+	const blocks = $derived(blockData.blocks);
+	const components = $derived(blockData.components);
+	const connections = $derived(blockData.connections);
+
+	let container = $state<HTMLDivElement | undefined>(undefined);
+	let lhsViewElem = $state<HTMLDivElement | undefined>(undefined);
+	let rhsViewElem = $state<HTMLDivElement | undefined>(undefined);
+
+	let lhsViewRef: View;
+	let rhsViewRef: View;
+	let ctrConnectorRef: Connector;
+
+	function drawConnections() {
+		if (!container) return;
+		ctrConnectorRef?.draw(container, connections);
 	}
 
-	const drawConnections = () => {
-		if (!container) return;
-		drawCtrConnections(container, connections);
-	};
+	function updateViews() {
+		if (!lhsViewRef || !rhsViewRef) return;
+		lhsViewRef.update();
+		rhsViewRef.update();
+	}
 
-	const updateViews = () => {
-		if (!updateLhsView || !updateRhsView) return;
-		updateLhsView();
-		updateRhsView();
-	};
-
-	const update = () => {
+	function update() {
 		if (!browser) return;
 		updateViews();
 		drawConnections();
-	};
-
-	/* Reactive statements */
-
-	$: editorColors = joinWithDefault(userColors, DefaultLightColors);
-	$: blocks = assembleOneWay(lhs, rhs, {
-		lineDiffAlgorithm,
-		hashTable,
-		diffOpts: {
-			ignoreCase,
-			ignoreWhitespace
-		}
-	});
-	$: renderComponents(blocks);
-	$: {
-		wrapLines;
-		editorColors;
-		update();
 	}
 
-	/* Lifecycle hooks */
+	$effect(() => {
+		void wrapLines;
+		void editorColors;
+		update();
+	});
 
-	onLineChange(() => container, update);
+	onLineChange(() => container as HTMLDivElement, update);
 </script>
 
 <div
@@ -181,7 +144,7 @@
 	{clazz}"
 	bind:this={container}
 >
-	<slot name="header" />
+	{#if header}{@render header()}{/if}
 
 	<div>
 		<div class="msm__main">
@@ -191,43 +154,26 @@
 				{disableMerging}
 				editable={lhsEditable}
 				side={OneWaySide.lhs}
-				bind:components
+				{components}
 				bind:content={lhs}
 				bind:elem={lhsViewElem}
-				bind:update={updateLhsView}
-				on:height-change={update}
-				on:merge
-				on:delete
-				on:input
-				on:keydown
-				on:keypress
-				on:keyup
+				bind:this={lhsViewRef}
+				onheightchange={update}
 			/>
-			<Connector
-				colors={editorColors}
-				bind:draw={drawCtrConnections}
-				bind:lhsViewElem
-				bind:rhsViewElem
-			/>
+			<Connector colors={editorColors} bind:this={ctrConnectorRef} {lhsViewElem} {rhsViewElem} />
 			<View
 				{container}
 				{highlight}
 				{disableMerging}
 				editable={rhsEditable}
 				side={OneWaySide.rhs}
-				bind:components
+				{components}
 				bind:content={rhs}
 				bind:elem={rhsViewElem}
-				bind:update={updateRhsView}
-				on:height-change={update}
-				on:merge
-				on:delete
-				on:input
-				on:keydown
-				on:keypress
-				on:keyup
+				bind:this={rhsViewRef}
+				onheightchange={update}
 			/>
-			<slot name="main" />
+			{#if main}{@render main()}{/if}
 		</div>
 	</div>
 	{#if !disableFooter}
@@ -239,7 +185,7 @@
 			{disableCharsCounter}
 			{disableBlocksCounters}
 		>
-			<slot name="footer" />
+			{#if footer}{@render footer()}{/if}
 		</Footer>
 	{/if}
 </div>

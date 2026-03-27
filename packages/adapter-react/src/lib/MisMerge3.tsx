@@ -46,7 +46,7 @@ export function MisMerge3({
 	ignoreCase?: boolean;
 	onConflictsResolvedChange?: (conflictsResolved: boolean) => void;
 }) {
-	const ref = useRef<JSX.IntrinsicElements['mis-merge2']>(null);
+	const ref = useRef<HTMLElement & Record<string, unknown>>(null);
 
 	useEffect(() => {
 		// @ts-expect-error No definitions provided for web components
@@ -55,11 +55,12 @@ export function MisMerge3({
 
 	useEffect(() => {
 		if (ref.current) {
-			ref.current.highlight = highlight;
+			ref.current['highlight'] = highlight;
 		}
 	}, [highlight]);
 
 	return (
+		// @ts-expect-error Custom element not in JSX intrinsic elements
 		<mis-merge3
 			ref={ref}
 			lhs={lhs}
@@ -67,19 +68,19 @@ export function MisMerge3({
 			rhs={rhs}
 			onInput={() => {
 				if (onLhsChange) {
-					onLhsChange(ref.current.lhs);
+					onLhsChange(ref.current!['lhs'] as string);
 				}
 
 				if (onCtrChange) {
-					onCtrChange(ref.current.ctr);
+					onCtrChange(ref.current!['ctr'] as string);
 				}
 
 				if (onRhsChange) {
-					onRhsChange(ref.current.rhs);
+					onRhsChange(ref.current!['rhs'] as string);
 				}
 
 				if (onConflictsResolvedChange) {
-					onConflictsResolvedChange(ref.current.conflictsResolved);
+					onConflictsResolvedChange(ref.current!['conflictsResolved'] as boolean);
 				}
 			}}
 			colors={JSON.stringify(colors)}

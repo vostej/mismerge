@@ -1,50 +1,40 @@
 <script lang="ts">
 	import type { BlockComponent } from '$lib/internal/editor/component';
-	import type { SidePanelEvents } from '$lib/internal/events';
 	import { TwoWaySide, type Side } from '$lib/internal/editor/side';
-	import { createEventDispatcher } from 'svelte';
 
-	/* Exports */
+	let {
+		side,
+		components,
+		disableMerging,
+		renderedSideComponents,
+		onmerge,
+		ondelete,
+		onresolve
+	}: {
+		side: Side;
+		components: BlockComponent[];
+		disableMerging: boolean;
+		renderedSideComponents: {
+			block: HTMLDivElement;
+			lines: HTMLDivElement[];
+			linesHeights: number[];
+		}[];
+		onmerge?: (component: BlockComponent) => void;
+		ondelete?: (component: BlockComponent) => void;
+		onresolve?: (component: BlockComponent) => void;
+	} = $props();
 
-	export let side: Side;
-	export let components: BlockComponent[];
-	export let disableMerging: boolean;
-	export let renderedSideComponents: {
-		block: HTMLDivElement;
-		lines: HTMLDivElement[];
-		linesHeights: number[];
-	}[] = [];
+	const direction = $derived(side.eq(TwoWaySide.lhs) ? 'right' : 'left');
 
-	/* Local variables */
-
-	let direction: 'right' | 'left' = side.eq(TwoWaySide.lhs) ? 'right' : 'left';
-	let linesComponents: {
-		startingLineNumber: number;
-		component: BlockComponent;
-	}[] = [];
-
-	/* Local functions */
-
-	function generateLines(components: BlockComponent[]) {
-		linesComponents = [];
+	const linesComponents = $derived.by(() => {
+		const result: { startingLineNumber: number; component: BlockComponent }[] = [];
 		let line = 1;
 		for (const component of components) {
-			linesComponents.push({
-				startingLineNumber: line,
-				component
-			});
+			result.push({ startingLineNumber: line, component });
 			line += component.linesCount;
 		}
-		linesComponents = linesComponents;
-	}
-
-	/* Reactive statements */
-
-	$: generateLines(components);
-
-	/* Events */
-
-	const dispatch = createEventDispatcher<SidePanelEvents>();
+		return result;
+	});
 </script>
 
 <div class="msm__side-panel msm__{direction}">
@@ -56,24 +46,22 @@
 				{@const { startingLineNumber, component } = lineComponent}
 				{#if block && lines}
 					{#if lines.length == 0}
-						<div class="msm__line-placeholder {component.type}" />
+						<div class="msm__line-placeholder {component.type}"></div>
 					{:else}
-						<!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
-						{#each lines as _, lineIndex}
+						{#each lines as _line, lineIndex}
 							<div
 								style="height: {linesHeights[lineIndex]}px;"
 								class="msm__line-number {component.type}"
 							>
-								{#if lineIndex == 0 && !disableMerging && component.sideAction && dispatch !== undefined}
-									<svelte:component
-										this={component.sideAction.component}
-										{...{ ...component.sideAction.props, dispatch, component }}
+								{#if lineIndex == 0 && !disableMerging && component.sideAction}
+									{@const ActionComp = component.sideAction.component}
+									<ActionComp
+										{...component.sideAction.props}
+										{component}
+										{onmerge}
+										{ondelete}
+										{onresolve}
 									/>
-									<!-- 
-										☝️ The weird spread is needed due to a Svelte bug affecting the use of 
-										`<svelte:component>` with spread props and normal ones in v4.
-										See here for more details: https://github.com/sveltejs/svelte/issues/9177	
-									-->
 								{/if}
 
 								<pre>{startingLineNumber + lineIndex}</pre>

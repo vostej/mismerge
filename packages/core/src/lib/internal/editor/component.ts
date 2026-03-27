@@ -1,46 +1,33 @@
-import type { SvelteComponent, createEventDispatcher } from 'svelte';
+import type { Component } from 'svelte';
 import type { Side } from './side';
 import { nanoid } from 'nanoid';
-import type { SidePanelEvents } from '../events';
 
-export type SideAction<
-	BlockProps extends Record<string, unknown> = Record<string, unknown>,
-	SideActionProps extends Record<string, unknown> = Record<string, unknown>
-> = {
-	component: typeof SvelteComponent<
-		{
-			component: BlockComponent<BlockProps, SideActionProps>;
-			dispatch: ReturnType<typeof createEventDispatcher<SidePanelEvents>>;
-		} & SideActionProps
-	>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyComponent = Component<any>;
+
+export type SideAction = {
+	component: AnyComponent;
 	props: Record<string, unknown>;
 };
 
 /**
  * Data to render a diff block.
  */
-export class BlockComponent<
-	BlockProps extends Record<string, unknown> = Record<string, unknown>,
-	SideActionProps extends Record<string, unknown> = Record<string, unknown>
-> {
+export class BlockComponent {
 	public readonly id = nanoid(8);
 	public readonly blockId: string;
-	public readonly component: typeof SvelteComponent<
-		{ component: BlockComponent<BlockProps> } & BlockProps
-	>;
+	public readonly component: AnyComponent;
 	public readonly side: Side;
-	public readonly props: BlockProps;
+	public readonly props: Record<string, unknown>;
 	public readonly type: string;
 	public readonly linesCount: number;
 	public readonly placeholder: boolean;
-	public readonly sideAction?: SideAction<BlockProps, SideActionProps>;
+	public readonly sideAction?: SideAction;
 	constructor(params: {
-		component: typeof SvelteComponent<
-			{ component: BlockComponent<BlockProps, SideActionProps> } & BlockProps
-		>;
-		sideAction?: SideAction<BlockProps, SideActionProps>;
+		component: AnyComponent;
+		sideAction?: SideAction;
 		blockId: string;
-		props: BlockProps;
+		props: Record<string, unknown>;
 		side: Side;
 		type: string;
 		linesCount: number;

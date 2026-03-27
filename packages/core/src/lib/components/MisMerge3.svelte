@@ -9,189 +9,152 @@
 />
 
 <script lang="ts">
-	import type { BlockComponent } from '$lib/internal/editor/component';
 	import { onLineChange, type Connection } from '$lib/internal/editor/connection';
 	import { joinWithDefault } from '$lib/internal/utils';
 	import Connector from './layout/Connector.svelte';
 	import View from './layout/View.svelte';
 	import { assembleTwoWay } from '$lib/internal/diff/two-way-assembler';
 	import { type EditorColors, DefaultLightColors } from '$lib/internal/editor/colors';
-	import { Side, TwoWaySide } from '$lib/internal/editor/side';
-	import { type DiffBlock, LinkedComponentsBlock } from '$lib/internal/blocks';
+	import { TwoWaySide } from '$lib/internal/editor/side';
+	import { LinkedComponentsBlock } from '$lib/internal/blocks';
 	import type { LineDiffAlgorithm } from '$lib/internal/diff/line-diff';
 	import { BlocksHashTable } from '$lib/internal/storage/table';
 	import Footer from './layout/Footer.svelte';
 	import { countChars, countWords } from '$lib/internal/editor/counters';
 	import { MergeConflictBlock } from '$lib/internal/blocks/merge-conflict';
 	import { browser } from '$lib/internal/env';
+	import type { Snippet } from 'svelte';
 
-	/* Exports */
+	let {
+		lhs = $bindable(),
+		ctr = $bindable(),
+		rhs = $bindable(),
+		lineDiffAlgorithm = 'words_with_space' as LineDiffAlgorithm,
+		colors = {} as Partial<EditorColors>,
+		class: clazz = '',
+		lhsEditable = false,
+		ctrEditable = true,
+		rhsEditable = false,
+		disableMerging = false,
+		wrapLines = false,
+		disableFooter = false,
+		disableWordsCounter = false,
+		disableCharsCounter = false,
+		disableBlocksCounters = false,
+		highlight = undefined as ((text: string) => string | Promise<string>) | undefined,
+		ignoreWhitespace = false,
+		ignoreCase = false,
+		conflictsResolved = $bindable(false),
+		header = undefined,
+		main = undefined,
+		footer = undefined
+	}: {
+		lhs: string;
+		ctr: string;
+		rhs: string;
+		lineDiffAlgorithm?: LineDiffAlgorithm;
+		colors?: Partial<EditorColors>;
+		class?: string;
+		lhsEditable?: boolean;
+		ctrEditable?: boolean;
+		rhsEditable?: boolean;
+		disableMerging?: boolean;
+		wrapLines?: boolean;
+		disableFooter?: boolean;
+		disableWordsCounter?: boolean;
+		disableCharsCounter?: boolean;
+		disableBlocksCounters?: boolean;
+		highlight?: (text: string) => string | Promise<string>;
+		ignoreWhitespace?: boolean;
+		ignoreCase?: boolean;
+		conflictsResolved?: boolean;
+		header?: Snippet;
+		main?: Snippet;
+		footer?: Snippet;
+	} = $props();
 
-	/**
-	 * Left hand side content.
-	 */
-	export let lhs: string;
-	/**
-	 * Center content.
-	 */
-	export let ctr: string;
-	/**
-	 * Right hand side content.
-	 */
-	export let rhs: string;
-	/**
-	 * Line diff algorithm.
-	 * @default "words_with_space"
-	 */
-	export let lineDiffAlgorithm: LineDiffAlgorithm = 'words_with_space';
-	/**
-	 * Custom colors to use for the editor.
-	 */
-	export { userColors as colors };
-	/**
-	 * Editor class.
-	 */
-	export { clazz as class };
-	/**
-	 * Whether the left-hand side content is editable.
-	 * @default false
-	 */
-	export let lhsEditable = false;
-	/**
-	 * Whether the center content is editable.
-	 * @default true
-	 */
-	export let ctrEditable = true;
-	/**
-	 * Whether the right-hand side content is editable.
-	 * @default false
-	 */
-	export let rhsEditable = false;
-	/**
-	 * Disable merging actions.
-	 */
-	export let disableMerging = false;
-	/**
-	 * Enables lines wrapping.
-	 */
-	export let wrapLines = false;
-	/**
-	 * Disable footer.
-	 */
-	export let disableFooter = false;
-	/**
-	 * Disable the footer words counter.
-	 */
-	export let disableWordsCounter = false;
-	/**
-	 * Disable the footer chars counter.
-	 */
-	export let disableCharsCounter = false;
-	/**
-	 * Disable the footer blocks counters.
-	 */
-	export let disableBlocksCounters = false;
-	/**
-	 * Syntax highlighting.
-	 */
-	export let highlight: ((text: string) => string | Promise<string>) | undefined = undefined;
-	/**
-	 * `true` to ignore leading and trailing whitespace.
-	 * @default false
-	 */
-	export let ignoreWhitespace = false;
-	/**
-	 * `true` to ignore casing difference.
-	 * @default false
-	 */
-	export let ignoreCase = false;
-	/**
-	 * Whether all conflicts have been resolved.
-	 */
-	export let conflictsResolved = false;
-
-	/* Local variables */
-
-	let clazz = '';
-	let userColors: Partial<EditorColors> = {};
-	let editorColors: EditorColors;
-	let blocks: DiffBlock<Side>[] = [];
-	let lhsConnections: Connection[] = [];
-	let rhsConnections: Connection[] = [];
-	let components: BlockComponent[] = [];
-
-	let container: HTMLDivElement;
-	let lhsViewElem: HTMLDivElement;
-	let ctrViewElem: HTMLDivElement;
-	let rhsViewElem: HTMLDivElement;
-	let drawLhsConnections: (container: HTMLDivElement, connections: Connection[]) => void;
-	let drawRhsConnections: (container: HTMLDivElement, connections: Connection[]) => void;
-	let updateLhsView: () => void;
-	let updateCtrView: () => void;
-	let updateRhsView: () => void;
+	const editorColors = $derived(joinWithDefault(colors, DefaultLightColors));
 
 	const hashTable = new BlocksHashTable<TwoWaySide>();
 
-	/* Local functions */
+	let resolveCount = $state(0);
 
-	const renderComponents = (blocks: DiffBlock<Side>[]) => {
-		lhsConnections = [];
-		components = blocks
+	const blockData = $derived.by(() => {
+		void resolveCount;
+		const blocks = assembleTwoWay(lhs, ctr, rhs, {
+			lineDiffAlgorithm,
+			hashTable,
+			diffOpts: { ignoreCase, ignoreWhitespace }
+		});
+
+		const lhsConnections: Connection[] = [];
+		const rhsConnections: Connection[] = [];
+
+		const components = blocks
 			.map((block) => {
 				const comps = block.render();
 				if (block instanceof LinkedComponentsBlock) {
 					const connections = block.connections([comps].flat());
-					lhsConnections.push(...connections.filter((conn) => conn.from.side.eq(TwoWaySide.lhs)));
-					rhsConnections.push(...connections.filter((conn) => conn.to.side.eq(TwoWaySide.rhs)));
+					lhsConnections.push(...connections.filter((c) => c.from.side.eq(TwoWaySide.lhs)));
+					rhsConnections.push(...connections.filter((c) => c.to.side.eq(TwoWaySide.rhs)));
 				}
 				return comps;
 			})
 			.flat();
-	};
 
-	const drawConnections = () => {
+		return { blocks, components, lhsConnections, rhsConnections };
+	});
+
+	const blocks = $derived(blockData.blocks);
+	const components = $derived(blockData.components);
+	const lhsConnections = $derived(blockData.lhsConnections);
+	const rhsConnections = $derived(blockData.rhsConnections);
+
+	$effect(() => {
+		conflictsResolved = blocks.every((b) => !(b instanceof MergeConflictBlock) || b.isResolved);
+	});
+
+	let container = $state<HTMLDivElement | undefined>(undefined);
+	let lhsViewElem = $state<HTMLDivElement | undefined>(undefined);
+	let ctrViewElem = $state<HTMLDivElement | undefined>(undefined);
+	let rhsViewElem = $state<HTMLDivElement | undefined>(undefined);
+
+	let lhsViewRef: View;
+	let ctrViewRef: View;
+	let rhsViewRef: View;
+	let lhsConnectorRef: Connector;
+	let rhsConnectorRef: Connector;
+
+	function drawConnections() {
 		if (!container) return;
-		drawLhsConnections(container, lhsConnections);
-		drawRhsConnections(container, rhsConnections);
-	};
+		lhsConnectorRef?.draw(container, lhsConnections);
+		rhsConnectorRef?.draw(container, rhsConnections);
+	}
 
-	const updateViews = () => {
-		if (!updateLhsView || !updateCtrView || !updateRhsView) return;
-		updateLhsView();
-		updateCtrView();
-		updateRhsView();
-	};
+	function updateViews() {
+		if (!lhsViewRef || !ctrViewRef || !rhsViewRef) return;
+		lhsViewRef.update();
+		ctrViewRef.update();
+		rhsViewRef.update();
+	}
 
-	const update = () => {
+	function update() {
 		if (!browser) return;
 		drawConnections();
 		updateViews();
-	};
-
-	/* Reactive statements */
-
-	$: editorColors = joinWithDefault(userColors, DefaultLightColors);
-	$: blocks = assembleTwoWay(lhs, ctr, rhs, {
-		lineDiffAlgorithm,
-		hashTable,
-		diffOpts: {
-			ignoreCase,
-			ignoreWhitespace
-		}
-	});
-	$: renderComponents(blocks);
-	$: {
-		wrapLines;
-		editorColors;
-		update();
 	}
-	$: conflictsResolved = blocks.every(
-		(block) => !(block instanceof MergeConflictBlock) || block.isResolved
-	);
 
-	/* Lifecycle hooks */
+	$effect(() => {
+		void wrapLines;
+		void editorColors;
+		update();
+	});
 
-	onLineChange(() => container, update);
+	function handleResolve() {
+		resolveCount++;
+	}
+
+	onLineChange(() => container as HTMLDivElement, update);
 </script>
 
 <div
@@ -209,7 +172,7 @@
 		{clazz}"
 	bind:this={container}
 >
-	<slot name="header" />
+	{#if header}{@render header()}{/if}
 
 	<div>
 		<div class="msm__main">
@@ -221,23 +184,16 @@
 				side={TwoWaySide.lhs}
 				lineNumbersSide="right"
 				bind:content={lhs}
-				bind:components
+				{components}
 				bind:elem={lhsViewElem}
-				bind:update={updateLhsView}
-				on:height-change={update}
-				on:merge
-				on:delete
-				on:resolve
-				on:input
-				on:keydown
-				on:keypress
-				on:keyup
+				bind:this={lhsViewRef}
+				onheightchange={update}
 			/>
 			<Connector
 				colors={editorColors}
-				bind:draw={drawLhsConnections}
-				bind:lhsViewElem
-				bind:rhsViewElem={ctrViewElem}
+				bind:this={lhsConnectorRef}
+				{lhsViewElem}
+				rhsViewElem={ctrViewElem}
 			/>
 			<View
 				{container}
@@ -246,26 +202,17 @@
 				editable={ctrEditable}
 				side={TwoWaySide.ctr}
 				bind:content={ctr}
-				bind:components
+				{components}
 				bind:elem={ctrViewElem}
-				bind:update={updateCtrView}
-				on:resolve={() => {
-					blocks = assembleTwoWay(lhs, ctr, rhs, { lineDiffAlgorithm, hashTable });
-				}}
-				on:height-change={update}
-				on:merge
-				on:delete
-				on:resolve
-				on:input
-				on:keydown
-				on:keypress
-				on:keyup
+				bind:this={ctrViewRef}
+				onresolve={handleResolve}
+				onheightchange={update}
 			/>
 			<Connector
 				colors={editorColors}
-				bind:draw={drawRhsConnections}
-				bind:lhsViewElem={ctrViewElem}
-				bind:rhsViewElem
+				bind:this={rhsConnectorRef}
+				lhsViewElem={ctrViewElem}
+				{rhsViewElem}
 			/>
 			<View
 				{container}
@@ -274,19 +221,12 @@
 				editable={rhsEditable}
 				side={TwoWaySide.rhs}
 				bind:content={rhs}
-				bind:components
+				{components}
 				bind:elem={rhsViewElem}
-				bind:update={updateRhsView}
-				on:height-change={update}
-				on:merge
-				on:delete
-				on:resolve
-				on:input
-				on:keydown
-				on:keypress
-				on:keyup
+				bind:this={rhsViewRef}
+				onheightchange={update}
 			/>
-			<slot name="main" />
+			{#if main}{@render main()}{/if}
 		</div>
 	</div>
 	{#if !disableFooter}
@@ -298,7 +238,7 @@
 			{disableCharsCounter}
 			{disableBlocksCounters}
 		>
-			<slot name="footer" />
+			{#if footer}{@render footer()}{/if}
 		</Footer>
 	{/if}
 </div>

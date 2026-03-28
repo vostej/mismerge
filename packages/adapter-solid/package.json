@@ -8,6 +8,7 @@
 	"scripts": {
 		"dev": "vite",
 		"build": "tsc && vite build && publint",
+		"check": "tsc -b",
 		"prepublishOnly": "npm run build",
 		"preview": "vite preview",
 		"publish": "npx --no-install semantic-release -e semantic-release-monorepo"

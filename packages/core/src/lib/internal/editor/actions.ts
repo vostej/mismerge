@@ -233,11 +233,7 @@ function getMergeStrategy(
 		return 'replace';
 	}
 
-	if (
-		(source.side as Side & { isOnTheLeftOf: (side: Side) => boolean }).isOnTheLeftOf(
-			correspondingComponent.side
-		)
-	) {
+	if (source.side.isOnTheLeftOf(correspondingComponent.side)) {
 		return 'insert-above';
 	}
 

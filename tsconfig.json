@@ -15,5 +15,7 @@
 		"outDir": "./dist",
 		"module": "ESNext",
 		"target": "ESNext"
-	}
+	},
+	"include": ["*.d.ts", "*.ts", "*.js", "*.cjs", "*.mjs", "*.svelte"],
+	"exclude": ["demo/**", "packages/**", "**/dist/**", "**/.svelte-kit/**", "**/node_modules/**"]
 }

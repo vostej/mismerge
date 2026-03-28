@@ -172,7 +172,8 @@
 
 	onLineChange(() => container as HTMLDivElement, update);
 
-	function handleAcceptLeft(block: DiffBlock<OneWaySide>) {
+	function handleAcceptLeft(block?: DiffBlock<OneWaySide>) {
+		if (!block) return;
 		const comp = components.find(
 			(c) => c.blockId === block.id && c.side.eq(OneWaySide.lhs) && !c.placeholder
 		);
@@ -180,7 +181,8 @@
 		mergeComponent({ source: comp, side: OneWaySide.lhs, components, container });
 	}
 
-	function handleAcceptRight(block: DiffBlock<OneWaySide>) {
+	function handleAcceptRight(block?: DiffBlock<OneWaySide>) {
+		if (!block) return;
 		const comp = components.find(
 			(c) => c.blockId === block.id && c.side.eq(OneWaySide.rhs) && !c.placeholder
 		);

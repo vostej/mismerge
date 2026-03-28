@@ -46,6 +46,7 @@
 			"default": "./dist/web.js"
 		},
 		"./colors": {
+			"types": "./dist/internal/editor/colors.d.ts",
 			"import": "./dist/internal/editor/colors.js",
 			"default": "./dist/internal/editor/colors.js"
 		}

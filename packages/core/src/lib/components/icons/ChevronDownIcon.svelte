@@ -1,3 +1,5 @@
+<script lang="ts"></script>
+
 <svg
 	class="msm__chevron-down-icon"
 	xmlns="http://www.w3.org/2000/svg"

@@ -2,9 +2,9 @@
  * Represent one side of the editor.
  */
 export abstract class Side {
-	public abstract eq(side: typeof this): boolean;
-	public abstract isOnTheRightOf(side: typeof this): boolean;
-	public abstract isOnTheLeftOf(side: typeof this): boolean;
+	public abstract eq(side: Side): boolean;
+	public abstract isOnTheRightOf(side: Side): boolean;
+	public abstract isOnTheLeftOf(side: Side): boolean;
 }
 
 /**
@@ -22,8 +22,8 @@ export class OneWaySide extends Side {
 		super();
 	}
 
-	public eq(side: OneWaySide): boolean {
-		return side.side == this.side;
+	public eq(side: Side): boolean {
+		return side instanceof OneWaySide && side.side == this.side;
 	}
 
 	public opposite() {
@@ -31,11 +31,13 @@ export class OneWaySide extends Side {
 		return OneWaySide.lhs;
 	}
 
-	public isOnTheRightOf(side: this): boolean {
+	public isOnTheRightOf(side: Side): boolean {
+		if (!(side instanceof OneWaySide)) return false;
 		return this.eq(OneWaySide.rhs) && side.eq(OneWaySide.lhs);
 	}
 
-	public isOnTheLeftOf(side: this): boolean {
+	public isOnTheLeftOf(side: Side): boolean {
+		if (!(side instanceof OneWaySide)) return false;
 		return this.eq(OneWaySide.lhs) && side.eq(OneWaySide.rhs);
 	}
 }
@@ -58,8 +60,8 @@ export class TwoWaySide extends Side {
 		super();
 	}
 
-	public eq(side: TwoWaySide): boolean {
-		return this.side == side.side;
+	public eq(side: Side): boolean {
+		return side instanceof TwoWaySide && this.side == side.side;
 	}
 
 	public adjacentSides(): TwoWaySide[] {
@@ -73,14 +75,16 @@ export class TwoWaySide extends Side {
 		}
 	}
 
-	public isOnTheRightOf(side: this): boolean {
+	public isOnTheRightOf(side: Side): boolean {
+		if (!(side instanceof TwoWaySide)) return false;
 		return (
 			(this.eq(TwoWaySide.rhs) && side.eq(TwoWaySide.ctr)) ||
 			(this.eq(TwoWaySide.ctr) && side.eq(TwoWaySide.lhs))
 		);
 	}
 
-	public isOnTheLeftOf(side: this): boolean {
+	public isOnTheLeftOf(side: Side): boolean {
+		if (!(side instanceof TwoWaySide)) return false;
 		return (
 			(this.eq(TwoWaySide.lhs) && side.eq(TwoWaySide.ctr)) ||
 			(this.eq(TwoWaySide.ctr) && side.eq(TwoWaySide.rhs))

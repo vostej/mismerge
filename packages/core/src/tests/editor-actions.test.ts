@@ -91,6 +91,34 @@ test('merging a three-way modified left-side change into center inserts it above
 	expect(targetTextarea.value).toBe('left change\ncenter change');
 });
 
+test('merging still uses the content block when gutter elements share the same component ids', () => {
+	const source = createComponent(TwoWaySide.lhs, 'modified');
+	const target = createComponent(TwoWaySide.ctr, 'modified');
+	const { container, targetTextarea } = createContainer(
+		source,
+		target,
+		['left change'],
+		['center change']
+	);
+
+	container.insertAdjacentHTML(
+		'afterbegin',
+		`<div class="msm__side-panel">
+			<div class="msm__line-number" data-component-id="${source.id}"></div>
+			<div class="msm__line-number" data-component-id="${target.id}"></div>
+		</div>`
+	);
+
+	mergeComponent({
+		source,
+		side: source.side,
+		components: [source, target],
+		container
+	});
+
+	expect(targetTextarea.value).toBe('left change\ncenter change');
+});
+
 test('removing an already merged three-way modified left-side change restores the center lines', () => {
 	const source = createComponent(TwoWaySide.lhs, 'modified');
 	const target = createComponent(TwoWaySide.ctr, 'modified');

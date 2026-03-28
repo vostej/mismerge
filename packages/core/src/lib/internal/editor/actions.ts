@@ -158,7 +158,7 @@ function getLinesFromElem(elem: HTMLDivElement): string[] {
 }
 
 function getComponentElem(container: HTMLElement, component: BlockComponent) {
-	return container.querySelector(`[data-component-id="${component.id}"]`);
+	return container.querySelector(`.msm__block[data-component-id="${component.id}"]`);
 }
 
 function getMergeData(data: {

@@ -12,8 +12,8 @@
 	"scripts": {
 		"core": "cd packages/core && npm run dev",
 		"demo": "cd demo && npm run dev",
-		"lint": "prettier --check . && eslint .",
-		"lint:fix": "prettier --write . && eslint --fix .",
+		"lint": "prettier --check . && eslint --ext .js,.cjs,.ts,.tsx,.svelte .",
+		"lint:fix": "prettier --write . && eslint --fix --ext .js,.cjs,.ts,.tsx,.svelte .",
 		"format": "prettier --write .",
 		"check": "npm run check --workspaces --if-present",
 		"test": "npm run test --workspaces --if-present",
@@ -70,7 +70,14 @@
 			"@semantic-release/commit-analyzer",
 			"@semantic-release/release-notes-generator",
 			"@semantic-release/npm",
-			["@semantic-release/github", {"successComment": false, "failComment": false, "releasedLabels": false}]
+			[
+				"@semantic-release/github",
+				{
+					"successComment": false,
+					"failComment": false,
+					"releasedLabels": false
+				}
+			]
 		]
 	},
 	"version": "0.0.0-development"
